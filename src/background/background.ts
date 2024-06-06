@@ -1,4 +1,10 @@
-// TODO: background script
+import { setStoredOptions, setStoredCities } from "../utils/storage";
+
 chrome.runtime.onInstalled.addListener(() => {
-  // TODO: on installed function
-})
+  setStoredCities([]);
+  setStoredOptions({
+    hasAutoOverlay: false,
+    homeCity: "",
+    tempScale: "metric",
+  });
+});
