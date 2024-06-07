@@ -5,6 +5,11 @@ import "./contentScript.css";
 import { Card } from "@material-ui/core";
 import { getStoredOptions, LocalStorageOptions } from "../utils/storage";
 import { Messages } from "../utils/messages";
+import {
+  extractKeywords,
+  extractTextContent,
+  preprocessText,
+} from "../utils/webcontent";
 
 const App: React.FC<{}> = () => {
   const [options, setOptions] = useState<LocalStorageOptions | null>(null);
@@ -30,6 +35,29 @@ const App: React.FC<{}> = () => {
       chrome.runtime.onMessage.removeListener(handleMessages);
     };
   }, [isActive]);
+
+  (async () => {
+    const pageText = extractKeywords(preprocessText(extractTextContent()));
+
+    const pageMetaElement: Element = document.querySelector(
+      'head meta[name="description"]'
+    );
+
+    const metaDescription = extractKeywords(
+      preprocessText(pageMetaElement["content"])
+    );
+
+    const keywords = pageText.join(", ") + ", " + metaDescription.join(", ");
+
+    console.log(`Sending PROCESS_TAB_META message with keywords; ${keywords}`);
+
+    const response = await chrome.runtime.sendMessage({
+      type: Messages.PROCESS_TAB_META,
+      keywords: keywords,
+    });
+
+    console.log(response);
+  })();
 
   if (!options) {
     return null;

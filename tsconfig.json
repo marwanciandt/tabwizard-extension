@@ -7,3 +7,13 @@
     "esModuleInterop": true
   }
 }
+// {
+//   "compilerOptions": {
+//     "jsx": "react",
+//     "module": "esnext", // Updated to support top-level await
+//     "target": "es2017", // Updated to a higher version that supports async/await
+//     "moduleResolution": "node",
+//     "esModuleInterop": true
+//   }
+// }
+

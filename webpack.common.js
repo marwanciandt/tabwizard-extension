@@ -2,6 +2,8 @@ const path = require("path");
 const CopyPlugin = require("copy-webpack-plugin");
 const HtmlPlugin = require("html-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const webpack = require("webpack");
+require("dotenv").config();
 
 module.exports = {
   entry: {
@@ -43,6 +45,9 @@ module.exports = {
       ],
     }),
     ...getHtmlPlugins(["popup", "options"]),
+    new webpack.DefinePlugin({
+      OPENAI_API_KEY: JSON.stringify(process.env.OPENAI_API_KEY),
+    }),
   ],
   output: {
     filename: "[name].js",

@@ -13,6 +13,7 @@ import {
   OpenWeatherData,
   OpenWeatherTempScale,
 } from "../../apis/weather_api";
+import { queryLLM } from "../../apis/llm_api";
 
 type WeatherCardState = "loading" | "error" | "ready";
 
@@ -54,6 +55,16 @@ const WeatherCard: React.FC<{
         setCardState("error");
       });
   }, [city, tempScale]);
+
+  useEffect(() => {
+    queryLLM("weather holiday greece flight ticket sunscreen boat trip")
+      .then((data) => {
+        console.log(data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, []);
 
   if (cardState == "loading" || cardState == "error") {
     return (
