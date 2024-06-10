@@ -9,8 +9,6 @@ import {
   PictureInPicture as PictureInPictureIcon,
 } from "@material-ui/icons";
 import {
-  setStoredCities,
-  getStoredCities,
   setStoredOptions,
   getStoredOptions,
   LocalStorageOptions,
@@ -23,7 +21,6 @@ const App: React.FC<{}> = () => {
   const [options, setOptions] = useState<LocalStorageOptions | null>(null);
 
   useEffect(() => {
-    getStoredCities().then((cities) => setCities(cities));
     getStoredOptions().then((options) => setOptions(options));
   }, []);
 
@@ -32,18 +29,6 @@ const App: React.FC<{}> = () => {
       return;
     }
     const updatedCities = [...cities, cityInput];
-    setStoredCities(updatedCities).then(() => {
-      setCities(updatedCities);
-      setCityInput("");
-    });
-  };
-
-  const handleDeleteCityButtonClick = (index: number) => {
-    cities.splice(index, 1);
-    const updatedCities = [...cities];
-    setStoredCities(updatedCities).then(() => {
-      setCities(updatedCities);
-    });
   };
 
   const handleToggleTempSCaleButtonClick = () => {
@@ -79,29 +64,6 @@ const App: React.FC<{}> = () => {
       <Grid container justifyContent="space-evenly">
         <Grid item>
           <Paper>
-            <Box px="15px" py="5px">
-              <InputBase
-                placeholder="Add a city name"
-                value={cityInput}
-                onChange={(event) => setCityInput(event.target.value)}
-              />
-              <IconButton onClick={handleCityButtonClick}>
-                <AddIcon />
-              </IconButton>
-            </Box>
-          </Paper>
-        </Grid>
-        <Grid item>
-          <Paper>
-            <Box py="5px">
-              <IconButton onClick={handleToggleTempSCaleButtonClick}>
-                {options.tempScale === "metric" ? "\u2103" : "\u2109"}
-              </IconButton>
-            </Box>
-          </Paper>
-        </Grid>
-        <Grid item>
-          <Paper>
             <Box py="5px">
               <IconButton onClick={handleToggleAutoOverlayClick}>
                 <PictureInPictureIcon />
@@ -110,17 +72,6 @@ const App: React.FC<{}> = () => {
           </Paper>
         </Grid>
       </Grid>
-      {options.homeCity != "" && (
-        <WeatherCard city={options.homeCity} tempScale={options.tempScale} />
-      )}
-      {cities.map((city, index) => (
-        <WeatherCard
-          city={city}
-          tempScale={options.tempScale}
-          key={index}
-          onDelete={() => handleDeleteCityButtonClick(index)}
-        />
-      ))}
       <Box height="16px" />
     </Box>
   );

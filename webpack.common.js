@@ -7,10 +7,12 @@ require("dotenv").config();
 
 module.exports = {
   entry: {
-    popup: path.resolve("src/popup/popup.tsx"),
+    // popup: path.resolve("src/popup/popup.tsx"),
     options: path.resolve("src/options/options.tsx"),
     background: path.resolve("src/background/background.ts"),
+    sidepanel: path.resolve("src/sidepanel/sidepanel.tsx"),
     contentScript: path.resolve("src/contentScript/contentScript.tsx"),
+    common: path.resolve("src/types/TabGroupType.tsx"),
   },
   module: {
     rules: [
@@ -44,7 +46,7 @@ module.exports = {
         },
       ],
     }),
-    ...getHtmlPlugins(["popup", "options"]),
+    ...getHtmlPlugins(["sidepanel", "options"]),
     new webpack.DefinePlugin({
       OPENAI_API_KEY: JSON.stringify(process.env.OPENAI_API_KEY),
     }),

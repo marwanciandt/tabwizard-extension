@@ -31,6 +31,9 @@ export function preprocessText(text) {
     "at",
     "by",
     "which",
+    "but",
+    "its",
+    "be"
   ]; // Add more stopwords
   let words = text
     .toLowerCase()

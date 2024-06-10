@@ -1,6 +1,6 @@
 {
-  "name": "React Extension",
-  "description": "Chrome Extension in React!",
+  "name": "Tab Wizard",
+  "description": "Tab Wizard Extension in React!",
   "version": "1.0.0",
   "manifest_version": 3,
   "icons": {
@@ -8,12 +8,24 @@
     "48": "icon.png",
     "128": "icon.png"
   },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
   "action": {
-    "default_popup": "popup.html",
     "default_title": "React Extension",
     "default_icon": "icon.png"
   },
-  "permissions": ["storage"],
+  "permissions": [
+    "sidePanel",
+    "tabs",
+    "activeTab",
+    "tabGroups",
+    "storage",
+    "contextMenus",
+    "alarms",
+    "notifications",
+    "search"
+  ],
   "options_page": "options.html",
   "background": {
     "service_worker": "background.js"

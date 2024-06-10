@@ -47,7 +47,7 @@ const App: React.FC<{}> = () => {
       preprocessText(pageMetaElement["content"])
     );
 
-    const keywords = pageText.join(", ") + ", " + metaDescription.join(", ");
+    const keywords = pageText.join(", ") + " " + metaDescription.join(", ");
 
     console.log(`Sending PROCESS_TAB_META message with keywords; ${keywords}`);
 
