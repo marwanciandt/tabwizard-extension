@@ -13,8 +13,10 @@ export interface LocalStorageOptions {
 
 export interface Tab {
   id: number;
+  groupId: number;
   title: string;
   keywords: string[];
+  description: string;
   type: TabType;
   url: string;
   windowId: number;
@@ -22,6 +24,7 @@ export interface Tab {
 
 export interface TabGroup {
   id: number;
+  windowId: number;
   name: string;
   summary: string;
   type: TabGroupType;

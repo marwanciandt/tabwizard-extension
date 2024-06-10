@@ -22,6 +22,7 @@ import {
 import { TabGroupType, TabType } from "../../types/TabGroupType";
 import TabComponent from "./TabComponent";
 import { Tab } from "../../utils/storage";
+import { queryLLM } from "../../apis/llm_api";
 
 const TabGroupComponent: React.FC<{
   name: string;
@@ -30,13 +31,6 @@ const TabGroupComponent: React.FC<{
   tabs?: Tab[];
   onDelete?: () => void;
 }> = ({ name, summary, type, tabs, onDelete }) => {
-  const defaultGroupData = {
-    name: name,
-    summary: summary,
-    type: type,
-    tabs: tabs,
-  };
-
   return (
     <Box
       sx={{
@@ -48,28 +42,35 @@ const TabGroupComponent: React.FC<{
     >
       <Grid container direction="column" spacing={4}>
         <Grid item>
-          <Box my="1%">
-            <Typography variant="body1">{name}</Typography>
-            <Typography variant="body1">{summary}</Typography>
+          <Box alignContent="left" px="3%" my="3%">
+            <Typography variant="h5">{name}</Typography>
+            <Typography variant="caption">{summary}</Typography>
             <Typography variant="body1">{type}</Typography>
           </Box>
         </Grid>
       </Grid>
       <Divider />
-      <List>
-        {tabs.map((tab, index) => (
-          <TabComponent
-            title={tab.title}
-            keywords={tab.keywords}
-            type={tab.type}
-            url={tab.url}
-            key={index}
-            onDelete={() => {
-              console.log(`Index : ${index}`);
-            }}
-          />
-        ))}
-      </List>
+      <Grid container direction="column" spacing={4}>
+        <Grid item>
+          <Box my="1%">
+            <List>
+              {tabs.map((tab, index) => (
+                <TabComponent
+                  index={index.valueOf()}
+                  id={tab.id}
+                  title={tab.title}
+                  keywords={tab.keywords}
+                  type={tab.type}
+                  url={tab.url}
+                  onDelete={() => {
+                    console.log(`Index : ${index.valueOf()}`);
+                  }}
+                />
+              ))}
+            </List>
+          </Box>
+        </Grid>
+      </Grid>
     </Box>
   );
 };

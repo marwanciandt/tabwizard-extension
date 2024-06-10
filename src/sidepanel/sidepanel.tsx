@@ -10,6 +10,7 @@ import {
   Paper,
   Box,
   Divider,
+  Button,
 } from "@material-ui/core";
 import {
   setStoredOptions,
@@ -42,7 +43,7 @@ const App: React.FC<{}> = () => {
       .catch((error) => {
         console.error("Failed to load options:", error);
       });
-  }, [options, tabsData]);
+  }, []);
 
   useEffect(() => {
     console.log("Fetching stored tabs data...");
@@ -54,7 +55,7 @@ const App: React.FC<{}> = () => {
       .catch((error) => {
         console.error("Failed to load options:", error);
       });
-  }, []);
+  }, [tabsData]);
 
   if (!options || !tabsData) {
     return null;
@@ -63,21 +64,24 @@ const App: React.FC<{}> = () => {
   return (
     <Box>
       {tabsData.tabGroups.map((tabGroup, index) => (
-        <TabGroupComponent
-          name={tabGroup.name}
-          summary={tabGroup.summary}
-          type={tabGroup.type}
-          tabs={tabGroup.tabs}
-          key={index}
-          onDelete={() => {
-            console.log(`Index : ${index}`);
-          }}
-        />
+        <Button>
+          <TabGroupComponent
+            name={tabGroup.name}
+            summary={tabGroup.summary}
+            type={tabGroup.type}
+            tabs={tabGroup.tabs}
+            key={index}
+            onDelete={() => {
+              console.log(`Index : ${index}`);
+            }}
+          />
+        </Button>
       ))}
       <Divider />
       {tabsData.tabs.map((tab, index) => (
         <TabComponent
           title={tab.title}
+          id={tab.id}
           keywords={tab.keywords}
           type={tab.type}
           url={tab.url}

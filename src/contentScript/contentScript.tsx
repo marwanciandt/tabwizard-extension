@@ -65,7 +65,7 @@ const App: React.FC<{}> = () => {
 
   return (
     <>
-      {isActive && (
+      {/* {isActive && (
         <Card className="overlayCard">
           <WeatherCard
             city={options.homeCity}
@@ -73,7 +73,7 @@ const App: React.FC<{}> = () => {
             onDelete={() => setIsActive(false)}
           />
         </Card>
-      )}
+      )} */}
     </>
   );
 };
