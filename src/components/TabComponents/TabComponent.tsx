@@ -44,13 +44,27 @@ const TabComponent: React.FC<{
   keywords?: string[];
   type?: TabType;
   url?: string;
+  windowId?: number;
+  groupId?: number;
   id?: number;
   index?: number;
   onDelete?: () => void;
-}> = ({ title, keywords, type, url, id, index, onDelete }) => {
+}> = ({
+  title,
+  keywords,
+  type,
+  url,
+  groupId,
+  windowId,
+  id,
+  index,
+  onDelete,
+}) => {
   const [description, setDescription] = React.useState<string>(
     "Description not set yet!"
   );
+
+  console.log(`Index value is ${index}`);
 
   useEffect(() => {
     console.debug("Updating description from llm");
@@ -68,25 +82,28 @@ const TabComponent: React.FC<{
         });
       });
     });
-  }, [description]);
+  }, []);
 
   return (
     <ListItem>
-      <Button>
-        <TabContainer onDelete={onDelete}>
-          <CardContent>
-            <Typography variant="h3">{index}</Typography>
-            <Typography variant="h5">{title}</Typography>
-            <Typography variant="subtitle1">{keywords}</Typography>
-            <Typography variant="subtitle2">{description}</Typography>
-            <Typography variant="body1">{type}</Typography>
-            <Typography variant="subtitle1">{id}</Typography>
-            <Link href="{url}" variant="body2">
+      <TabContainer onDelete={onDelete}>
+        <CardContent>
+          <Typography variant="subtitle1">Index: {index}</Typography>
+          <Typography variant="h5">Title: {title}</Typography>
+          <Typography variant="subtitle1">Groupid: {groupId}</Typography>
+          <Typography variant="subtitle1">TabId: {id}</Typography>
+          <Typography variant="subtitle1">Keywords: {keywords}</Typography>
+          <Typography variant="subtitle2">
+            Description: {description}
+          </Typography>
+          <Typography variant="subtitle2">WindowId: {windowId}</Typography>
+          <Typography variant="body1">Type: {type}</Typography>
+          <Typography variant="body1">Link: {url}</Typography>
+          {/* <Link href="{url}" variant="body2">
               More...
-            </Link>
-          </CardContent>
-        </TabContainer>
-      </Button>
+            </Link> */}
+        </CardContent>
+      </TabContainer>
     </ListItem>
   );
 };

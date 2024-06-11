@@ -1,4 +1,5 @@
 import { LLMResponse, queryLLM } from "../apis/llm_api";
+import { TabsData } from "../sidepanel/sidepanel";
 import { Messages } from "../utils/messages";
 import {
   getStoredTabsData,
@@ -6,9 +7,10 @@ import {
   setStoredOptions,
   setStoredTabsData,
   Tab,
+  TabGroup,
 } from "../utils/storage";
 
-export async function getAllTabs(): Promise<Tab[]> {
+async function getAllTabs(): Promise<Tab[]> {
   const current = await chrome.windows.getCurrent();
   const windowTabs = await chrome.tabs.query({ windowId: current.id });
   const collator = new Intl.Collator();
@@ -33,89 +35,96 @@ export async function getAllTabs(): Promise<Tab[]> {
   return tabs;
 }
 
+async function fetchGroupTitles(tabs: Tab[]) {
+  const groupIds = [
+    ...new Set(
+      tabs.filter((tab) => tab.groupId !== -1).map((tab) => tab.groupId)
+    ),
+  ];
+
+  const promises = groupIds.map((groupId) =>
+    chrome.tabGroups
+      .get(groupId)
+      .then((group) => ({
+        id: groupId,
+        title: group.title,
+      }))
+      .catch((error) => ({
+        id: groupId,
+        title: "Untitled Group", // Fallback title in case of an error
+        error,
+      }))
+  );
+  return Promise.all(promises);
+}
+
+async function processTabs(): Promise<TabsData> {
+  const groupPromises = [];
+  const groups: TabGroup[] = [];
+  const defaultGroup: Tab[] = [];
+
+  const tabs = await getAllTabs();
+  const groupData = await fetchGroupTitles(tabs);
+
+  tabs.forEach((tab, index) => {
+    if (tab.groupId === -1) {
+      console.log(`Adding standalone tab ${tab.id}`);
+      defaultGroup.push(tab);
+    } else {
+      const group = groups.find((group) => group.id === tab.groupId);
+      if (group !== undefined) {
+        console.log(`Pushing tab ${tab.id} to existing group ${group.id}`);
+        group.tabs.push(tab);
+      } else {
+        const title = groupData.find((g) => g.id === tab.groupId).title;
+
+        const newGroup: TabGroup = {
+          id: tab.groupId,
+          windowId: tab.windowId,
+          name: title,
+          summary: "Default summary.",
+          type: "user",
+          tabs: [tab], // Start with the current tab
+        };
+
+        console.log(`Pushing new group to array ${newGroup.id}`);
+        groups.push(newGroup);
+      }
+    }
+  });
+  return {
+    tabGroups: groups,
+    tabs: defaultGroup,
+  };
+}
+
+async function setTabData() {
+  const tabsData: TabsData = await processTabs();
+
+  console.log(
+    `Number of groups identified ${
+      tabsData.tabGroups != null && tabsData.tabGroups.length
+    }`
+  );
+  console.log(
+    `Number of standalone tabs identified ${
+      tabsData.tabs != null && tabsData.tabs.length
+    }`
+  );
+
+  console.log(tabsData);
+
+  setStoredTabsData(tabsData).then(() => {
+    console.log("Stored tabs in LocalStorage");
+  });
+}
+
 chrome.runtime.onInstalled.addListener(() => {
-  // Set SidePanel click behaviour
   chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
 
   (async () => {
-    const res = await getAllTabs().then((tabs) => {
-      setStoredTabsData({
-        tabGroups: [],
-        tabs: tabs,
-      });
-    });
+    await setTabData();
   })();
-
-  // setStoredTabsData({
-  //   tabGroups: [
-  //     {
-  //       id: 1,
-  //       name: "LLM using LangChain or LangGraph",
-  //       summary: "langchain langgraph",
-  //       type: "ai",
-  //       tabs: [
-  //         {
-  //           id: 1,
-  //           title: "A tab",
-  //           keywords: ["llm", "langchain"],
-  //           type: "ai",
-  //           url: "https://wizard.com",
-  //           windowId: 1,
-  //         },
-  //         {
-  //           id: 2,
-  //           title: "A second tab",
-  //           keywords: ["sourdough", "baking"],
-  //           type: "user",
-  //           url: "https://wizard.com",
-  //           windowId: 1,
-  //         },
-  //       ],
-  //     },
-  //     {
-  //       id: 2,
-  //       name: "How to make Sourdough",
-  //       summary: "Sourdough baking",
-  //       type: "user",
-  //       tabs: [
-  //         {
-  //           id: 1,
-  //           title: "A tab",
-  //           keywords: ["llm", "langchain"],
-  //           type: "ai",
-  //           url: "https://wizard.com",
-  //           windowId: 1,
-  //         },
-  //         {
-  //           id: 2,
-  //           title: "A second tab",
-  //           keywords: ["sourdough", "baking"],
-  //           type: "user",
-  //           url: "https://wizard.com",
-  //           windowId: 1,
-  //         },
-  //       ],
-  //     },
-  //   ],
-  //   tabs: [
-  //     {
-  //       id: 1,
-  //       title: "A tab",
-  //       keywords: ["llm", "langchain"],
-  //       type: "ai",
-  //       url: "https://wizard.com",
-  //       windowId: 1,
-  //     },
-  //     {
-  //       id: 2,
-  //       title: "A second tab",
-  //       keywords: ["sourdough", "baking"],
-  //       type: "user",
-  //       url: "https://wizard.com",
-  //       windowId: 1,
-  //     },
-  //   ],
-  // });
 });
 
 async function getTopic(prompt: string): Promise<LLMResponse> {

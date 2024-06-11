@@ -13,16 +13,9 @@ import {
   IconButton,
   Paper,
 } from "@material-ui/core";
-import {
-  Tab as TabIcon,
-  Dns as TabGroupIcon,
-  Assistant as SmartGroupIcon,
-  PictureInPicture as PictureInPictureIcon,
-} from "@material-ui/icons";
 import { TabGroupType, TabType } from "../../types/TabGroupType";
 import TabComponent from "./TabComponent";
 import { Tab } from "../../utils/storage";
-import { queryLLM } from "../../apis/llm_api";
 
 const TabGroupComponent: React.FC<{
   name: string;
@@ -54,19 +47,23 @@ const TabGroupComponent: React.FC<{
         <Grid item>
           <Box my="1%">
             <List>
-              {tabs.map((tab, index) => (
-                <TabComponent
-                  index={index.valueOf()}
-                  id={tab.id}
-                  title={tab.title}
-                  keywords={tab.keywords}
-                  type={tab.type}
-                  url={tab.url}
-                  onDelete={() => {
-                    console.log(`Index : ${index.valueOf()}`);
-                  }}
-                />
-              ))}
+              {tabs.map((tab, index: number) => {
+                console.log(`Index is inside map ${index}`);
+                return (
+                  <TabComponent
+                    index={index}
+                    id={tab.id}
+                    title={tab.title}
+                    keywords={tab.keywords}
+                    type={tab.type}
+                    url={tab.url}
+                    windowId={tab.windowId}
+                    onDelete={() => {
+                      console.log(`Index : ${index.valueOf()}`);
+                    }}
+                  />
+                );
+              })}
             </List>
           </Box>
         </Grid>

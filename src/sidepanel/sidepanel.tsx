@@ -2,18 +2,8 @@ import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import "./sidepanel.css";
 import "fontsource-roboto";
-// import SidePanel from "../components/SidePanelList";
+import { Box, Divider } from "@material-ui/core";
 import {
-  Grid,
-  InputBase,
-  IconButton,
-  Paper,
-  Box,
-  Divider,
-  Button,
-} from "@material-ui/core";
-import {
-  setStoredOptions,
   getStoredOptions,
   LocalStorageOptions,
   TabGroup,
@@ -21,7 +11,6 @@ import {
   getStoredTabsData,
   LocalStorageTabsData,
 } from "../utils/storage";
-
 import { TabComponent, TabGroupComponent } from "../components/TabComponents";
 
 export interface TabsData {
@@ -51,31 +40,30 @@ const App: React.FC<{}> = () => {
       .then((tabsData) => {
         console.log("Setting tab data:");
         setTabsData(tabsData);
+        console.log(tabsData);
       })
       .catch((error) => {
         console.error("Failed to load options:", error);
       });
-  }, [tabsData]);
+  }, []);
 
-  if (!options || !tabsData) {
+  if (!tabsData) {
     return null;
   }
 
   return (
     <Box>
       {tabsData.tabGroups.map((tabGroup, index) => (
-        <Button>
-          <TabGroupComponent
-            name={tabGroup.name}
-            summary={tabGroup.summary}
-            type={tabGroup.type}
-            tabs={tabGroup.tabs}
-            key={index}
-            onDelete={() => {
-              console.log(`Index : ${index}`);
-            }}
-          />
-        </Button>
+        <TabGroupComponent
+          name={tabGroup.name}
+          summary={tabGroup.summary}
+          type={tabGroup.type}
+          tabs={tabGroup.tabs}
+          key={index}
+          onDelete={() => {
+            console.log(`Index groups in sidePanel : ${index}`);
+          }}
+        />
       ))}
       <Divider />
       {tabsData.tabs.map((tab, index) => (
@@ -85,9 +73,11 @@ const App: React.FC<{}> = () => {
           keywords={tab.keywords}
           type={tab.type}
           url={tab.url}
-          key={index}
+          index={index}
+          groupId={tab.groupId}
+          windowId={tab.windowId}
           onDelete={() => {
-            console.log(`Index : ${index}`);
+            console.log(`Index tabs in sidePanel : ${index}`);
           }}
         />
       ))}
