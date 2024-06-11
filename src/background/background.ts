@@ -11,7 +11,7 @@ import {
 } from "../utils/storage";
 
 async function getAllTabs(): Promise<Tab[]> {
-  const current = await chrome.windows.getCurrent();
+  const current = await chrome.windows.getLastFocused();
   const windowTabs = await chrome.tabs.query({ windowId: current.id });
   const collator = new Intl.Collator();
   windowTabs.sort((a, b) => collator.compare(a.title, b.title));
@@ -59,7 +59,6 @@ async function fetchGroupTitles(tabs: Tab[]) {
 }
 
 async function processTabs(): Promise<TabsData> {
-  const groupPromises = [];
   const groups: TabGroup[] = [];
   const defaultGroup: Tab[] = [];
 

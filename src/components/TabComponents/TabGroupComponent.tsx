@@ -2,20 +2,17 @@ import * as React from "react";
 import {
   Box,
   List,
-  ListItem,
-  Button,
-  ListItemIcon,
-  ListItemText,
   Divider,
-  Icon,
   Typography,
   Grid,
-  IconButton,
-  Paper,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from "@material-ui/core";
 import { TabGroupType, TabType } from "../../types/TabGroupType";
 import TabComponent from "./TabComponent";
 import { Tab } from "../../utils/storage";
+import { Add, ExpandMore } from "@material-ui/icons";
 
 const TabGroupComponent: React.FC<{
   name: string;
@@ -33,41 +30,49 @@ const TabGroupComponent: React.FC<{
         borderRadius: "15px",
       }}
     >
-      <Grid container direction="column" spacing={4}>
-        <Grid item>
-          <Box alignContent="left" px="3%" my="3%">
-            <Typography variant="h5">{name}</Typography>
-            <Typography variant="caption">{summary}</Typography>
-            <Typography variant="body1">{type}</Typography>
-          </Box>
+      <Accordion>
+        <AccordionSummary
+          expandIcon={<ExpandMore />}
+          aria-controls="panel1-content"
+          id="panel1-header"
+        >
+          <Typography variant="h5">
+            {name} ({tabs.length})
+          </Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Typography variant="body1">Summary: {summary}</Typography>
+        </AccordionDetails>
+        <AccordionDetails>
+          <Typography variant="body1">Type: {type}</Typography>
+        </AccordionDetails>
+        <Divider />
+        <Grid container direction="column" spacing={4}>
+          <Grid item>
+            <Box my="1%">
+              <List>
+                {tabs.map((tab, index: number) => {
+                  console.log(`Index is inside map ${index}`);
+                  return (
+                    <TabComponent
+                      index={index}
+                      id={tab.id}
+                      title={tab.title}
+                      keywords={tab.keywords}
+                      type={tab.type}
+                      url={tab.url}
+                      windowId={tab.windowId}
+                      onDelete={() => {
+                        console.log(`Index : ${index.valueOf()}`);
+                      }}
+                    />
+                  );
+                })}
+              </List>
+            </Box>
+          </Grid>
         </Grid>
-      </Grid>
-      <Divider />
-      <Grid container direction="column" spacing={4}>
-        <Grid item>
-          <Box my="1%">
-            <List>
-              {tabs.map((tab, index: number) => {
-                console.log(`Index is inside map ${index}`);
-                return (
-                  <TabComponent
-                    index={index}
-                    id={tab.id}
-                    title={tab.title}
-                    keywords={tab.keywords}
-                    type={tab.type}
-                    url={tab.url}
-                    windowId={tab.windowId}
-                    onDelete={() => {
-                      console.log(`Index : ${index.valueOf()}`);
-                    }}
-                  />
-                );
-              })}
-            </List>
-          </Box>
-        </Grid>
-      </Grid>
+      </Accordion>
     </Box>
   );
 };
