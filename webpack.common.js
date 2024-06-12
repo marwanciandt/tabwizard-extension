@@ -12,7 +12,7 @@ module.exports = {
     background: path.resolve("src/background/background.ts"),
     sidepanel: path.resolve("src/sidepanel/sidepanel.tsx"),
     contentScript: path.resolve("src/contentScript/contentScript.tsx"),
-    common: path.resolve("src/types/TabGroupType.tsx"),
+    // common: path.resolve("src/types/*.tsx"),
   },
   module: {
     rules: [

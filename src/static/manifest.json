@@ -12,9 +12,10 @@
     "default_path": "sidepanel.html"
   },
   "action": {
-    "default_title": "React Extension",
+    "default_title": "Tab Wizard Extension",
     "default_icon": "icon.png"
   },
+  "host_permissions": ["https://*/*", "http://*/*"],
   "permissions": [
     "sidePanel",
     "tabs",
@@ -24,7 +25,8 @@
     "contextMenus",
     "alarms",
     "notifications",
-    "search"
+    "search",
+    "scripting"
   ],
   "options_page": "options.html",
   "background": {

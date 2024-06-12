@@ -20,6 +20,7 @@ export interface Tab {
   type: TabType;
   url: string;
   windowId: number;
+  processed: boolean;
 }
 
 export interface TabGroup {
@@ -29,6 +30,7 @@ export interface TabGroup {
   summary: string;
   type: TabGroupType;
   tabs?: Tab[];
+  processed: boolean;
 }
 
 export interface LocalStorageTabsData {

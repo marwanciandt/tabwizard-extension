@@ -44,6 +44,7 @@ const TabComponent: React.FC<{
   keywords?: string[];
   type?: TabType;
   url?: string;
+  processed: boolean;
   windowId?: number;
   groupId?: number;
   id?: number;
@@ -55,6 +56,7 @@ const TabComponent: React.FC<{
   type,
   url,
   groupId,
+  processed,
   windowId,
   id,
   index,
@@ -90,6 +92,9 @@ const TabComponent: React.FC<{
         <CardContent>
           <Typography variant="subtitle1">Index: {index}</Typography>
           <Typography variant="h5">Title: {title}</Typography>
+          <Typography variant="subtitle1">
+            Processed: {processed && "true"}
+          </Typography>
           <Typography variant="subtitle1">Groupid: {groupId}</Typography>
           <Typography variant="subtitle1">TabId: {id}</Typography>
           <Typography variant="subtitle1">Keywords: {keywords}</Typography>

@@ -55,7 +55,7 @@ const App: React.FC<{}> = () => {
       .catch((error) => {
         console.error("Failed to load options:", error);
       });
-  }, []);
+  }, [tabsData]);
 
   if (!tabsData) {
     return null;
@@ -98,9 +98,7 @@ const App: React.FC<{}> = () => {
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <Typography variant="body1">
-              Tabs: {tabsData.tabs.length}
-            </Typography>
+            <Typography variant="body1">Default group</Typography>
           </AccordionDetails>
           <Divider />
           <Grid container direction="column" spacing={4}>
@@ -116,6 +114,7 @@ const App: React.FC<{}> = () => {
                       url={tab.url}
                       index={index}
                       groupId={tab.groupId}
+                      processed={tab.processed}
                       windowId={tab.windowId}
                       onDelete={() => {
                         console.log(`Index tabs in sidePanel : ${index}`);

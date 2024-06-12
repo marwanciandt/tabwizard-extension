@@ -62,6 +62,7 @@ const TabGroupComponent: React.FC<{
                       type={tab.type}
                       url={tab.url}
                       windowId={tab.windowId}
+                      processed={tab.processed}
                       onDelete={() => {
                         console.log(`Index : ${index.valueOf()}`);
                       }}

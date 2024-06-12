@@ -13,7 +13,7 @@ import {
   getStoredOptions,
   LocalStorageOptions,
 } from "../utils/storage";
-import { Messages } from "../utils/messages";
+import { MessageRequests } from "../types/messages";
 
 const App: React.FC<{}> = () => {
   const [cities, setCities] = useState<string[]>([]);
@@ -49,7 +49,9 @@ const App: React.FC<{}> = () => {
       },
       (tabs) => {
         if (tabs.length > 0) {
-          chrome.tabs.sendMessage(tabs[0].id, Messages.TOGGLE_OVERLAY);
+          chrome.tabs.sendMessage(tabs[0].id, {
+            message: MessageRequests.REQ_TOGGLE_OVERLAY,
+          });
         }
       }
     );
