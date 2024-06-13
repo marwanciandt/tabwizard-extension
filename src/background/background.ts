@@ -264,6 +264,9 @@ chrome.alarms.onAlarm.addListener((alarm) => {
 
       tabsData.tabGroups.forEach((tabGroup) => {
         if (!tabGroup.processed) {
+          console.log(
+            `Analyzing group ${tabGroup.name} with ${tabGroup.tabs.length}`
+          );
           tabGroup.tabs.forEach((tab) => {
             if (!tab.processed) {
               const promise = new Promise((resolve) => {
@@ -275,6 +278,7 @@ chrome.alarms.onAlarm.addListener((alarm) => {
         }
       });
 
+      console.log(`Analyzing ${tabsData.tabs.length} standalone tabs`);
       tabsData.tabs.forEach((tab) => {
         if (!tab.processed) {
           const promise = new Promise((resolve) => {
@@ -304,8 +308,13 @@ function sendProcessMessage(tab: Tab, resolve) {
       tab.keywords = response.data.keywords;
       tab.processed = true;
     }
-    console.log(`Processed tab ${tab.title}`);
+    console.log(
+      `Processing tab ${tab.title} ${
+        tab.processed ? "completed" : "pending..."
+      }`
+    );
     resolve(); // Resolve the promise after processing
+    return true;
   });
 }
 

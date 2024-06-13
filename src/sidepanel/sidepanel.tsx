@@ -10,6 +10,7 @@ import {
   Divider,
   Grid,
   List,
+  TextField,
   Typography,
 } from "@material-ui/core";
 import {
@@ -31,6 +32,7 @@ export interface TabsData {
 const App: React.FC<{}> = () => {
   const [options, setOptions] = useState<LocalStorageOptions | null>(null);
   const [tabsData, setTabsData] = useState<LocalStorageTabsData>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     console.log("Fetching stored options...");
@@ -61,9 +63,37 @@ const App: React.FC<{}> = () => {
     return null;
   }
 
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value);
+  };
+
+  // Filtering tab groups and tabs within each group
+  const filteredTabGroups = tabsData.tabGroups
+    .map((tabGroup) => ({
+      ...tabGroup,
+      tabs: tabGroup.tabs.filter((tab) =>
+        tab.title.toLowerCase().includes(searchQuery.toLowerCase())
+      ),
+    }))
+    .filter((tabGroup) => tabGroup.tabs.length > 0);
+
+  const filteredStandaloneTabs = tabsData.tabs.filter((tab) =>
+    tab.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <Box>
-      {tabsData.tabGroups.map((tabGroup, index) => (
+      <Box>
+        <TextField
+          label="Search Tabs"
+          variant="outlined"
+          fullWidth
+          value={searchQuery}
+          onChange={handleSearchChange}
+          margin="normal"
+        />
+      </Box>
+      {filteredTabGroups.map((tabGroup, index) => (
         <React.Fragment key={index}>
           <TabGroupComponent
             name={tabGroup.name}
@@ -94,7 +124,7 @@ const App: React.FC<{}> = () => {
             id="panel1-header"
           >
             <Typography variant="h5">
-              Standalone ({tabsData.tabs.length})
+              Standalone ({filteredStandaloneTabs.length})
             </Typography>
           </AccordionSummary>
           <AccordionDetails>

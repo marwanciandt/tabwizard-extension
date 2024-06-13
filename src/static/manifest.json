@@ -15,7 +15,7 @@
     "default_title": "Tab Wizard Extension",
     "default_icon": "icon.png"
   },
-  "host_permissions": ["https://*/*", "http://*/*"],
+  "host_permissions": ["<all_urls>"],
   "permissions": [
     "sidePanel",
     "tabs",
