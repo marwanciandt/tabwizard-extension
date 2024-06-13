@@ -2,17 +2,7 @@ import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import "./sidepanel.css";
 import "fontsource-roboto";
-import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Box,
-  Divider,
-  Grid,
-  List,
-  TextField,
-  Typography,
-} from "@material-ui/core";
+import { Box, Divider, TextField } from "@material-ui/core";
 import {
   getStoredOptions,
   LocalStorageOptions,
@@ -21,12 +11,10 @@ import {
   getStoredTabsData,
   LocalStorageTabsData,
 } from "../utils/storage";
-import { TabComponent, TabGroupComponent } from "../components/TabComponents";
-import { ExpandMore } from "@material-ui/icons";
+import { TabGroupComponent } from "../components/TabComponents";
 
 export interface TabsData {
   tabGroups: TabGroup[];
-  tabs: Tab[];
 }
 
 const App: React.FC<{}> = () => {
@@ -47,12 +35,9 @@ const App: React.FC<{}> = () => {
   }, []);
 
   useEffect(() => {
-    console.log("Fetching stored tabs data...");
     getStoredTabsData()
       .then((tabsData) => {
-        console.log("Setting tab data:");
         setTabsData(tabsData);
-        console.log(tabsData);
       })
       .catch((error) => {
         console.error("Failed to load options:", error);
@@ -76,10 +61,6 @@ const App: React.FC<{}> = () => {
       ),
     }))
     .filter((tabGroup) => tabGroup.tabs.length > 0);
-
-  const filteredStandaloneTabs = tabsData.tabs.filter((tab) =>
-    tab.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   return (
     <Box>
@@ -108,55 +89,6 @@ const App: React.FC<{}> = () => {
           {index < tabsData.tabGroups.length - 1 && <Divider />}
         </React.Fragment>
       ))}
-      <Divider />
-      <Box
-        sx={{
-          width: "100%",
-          bgcolor: "background.paper",
-          border: "2px",
-          borderRadius: "15px",
-        }}
-      >
-        <Accordion>
-          <AccordionSummary
-            expandIcon={<ExpandMore />}
-            aria-controls="panel1-content"
-            id="panel1-header"
-          >
-            <Typography variant="h5">
-              Standalone ({filteredStandaloneTabs.length})
-            </Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <Typography variant="body1">Default group</Typography>
-          </AccordionDetails>
-          <Divider />
-          <Grid container direction="column" spacing={4}>
-            <Grid item>
-              <Box my="1%">
-                <List>
-                  {tabsData.tabs.map((tab, index) => (
-                    <TabComponent
-                      title={tab.title}
-                      id={tab.id}
-                      keywords={tab.keywords}
-                      type={tab.type}
-                      url={tab.url}
-                      index={index}
-                      groupId={tab.groupId}
-                      processed={tab.processed}
-                      windowId={tab.windowId}
-                      onDelete={() => {
-                        console.log(`Index tabs in sidePanel : ${index}`);
-                      }}
-                    />
-                  ))}
-                </List>
-              </Box>
-            </Grid>
-          </Grid>
-        </Accordion>
-      </Box>
       <Box height="16px" />
     </Box>
   );

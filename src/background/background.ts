@@ -1,12 +1,6 @@
 import { LLMResponse, queryLLM } from "../apis/llm_api";
 import { TabsData } from "../sidepanel/sidepanel";
-import {
-  MessageRequest,
-  MessageRequests,
-  MessageResponse,
-  TAB_MSG_CHANNEL,
-  TabContentMessageData,
-} from "../types/messages";
+import { MessageRequests } from "../types/messages";
 import {
   getStoredTabsData,
   setStoredTabsData,
@@ -51,58 +45,46 @@ async function fetchGroupTitles(tabs: Tab[]) {
   ];
 
   const promises = groupIds.map((groupId) =>
-    chrome.tabGroups
-      .get(groupId)
-      .then((group) => ({
-        id: groupId,
-        title: group.title,
-      }))
-      .catch((error) => ({
-        id: groupId,
-        title: "Untitled Group", // Fallback title in case of an error
-        error,
-      }))
+    chrome.tabGroups.get(groupId).then((group) => ({
+      id: groupId,
+      title: group.title,
+    }))
   );
   return Promise.all(promises);
 }
 
-async function processTabs(): Promise<TabsData> {
+async function extractTabGroups(): Promise<TabsData> {
   const groups: TabGroup[] = [];
-  const defaultGroup: Tab[] = [];
-
   const tabs = await getAllTabs();
   const groupData = await fetchGroupTitles(tabs);
+  groupData.push({ id: -1, title: "Standadlone" });
 
   tabs.forEach((tab, index) => {
-    if (tab.groupId === -1) {
-      console.log(`Adding standalone tab ${tab.id}`);
-      defaultGroup.push(tab);
+    const group = groups.find((group) => group.id === tab.groupId);
+    if (group !== undefined) {
+      console.log(`Pushing tab ${tab.id} to existing group ${group.id}`);
+      group.tabs.push(tab);
     } else {
-      const group = groups.find((group) => group.id === tab.groupId);
-      if (group !== undefined) {
-        console.log(`Pushing tab ${tab.id} to existing group ${group.id}`);
-        group.tabs.push(tab);
-      } else {
-        const title = groupData.find((g) => g.id === tab.groupId).title;
+      const title = groupData.find((g) => g.id === tab.groupId).title;
+      const newGroup: TabGroup = {
+        id: tab.groupId,
+        windowId: tab.windowId,
+        name: title,
+        summary: "Default summary.",
+        type: "user",
+        tabs: [tab],
+        processed: false,
+      };
 
-        const newGroup: TabGroup = {
-          id: tab.groupId,
-          windowId: tab.windowId,
-          name: title,
-          summary: "Default summary.",
-          type: "user",
-          tabs: [tab], // Start with the current tab
-          processed: false,
-        };
-
-        console.log(`Pushing new group to array ${newGroup.id}`);
-        groups.push(newGroup);
-      }
+      console.log(`Pushing new group to array ${newGroup.id}`);
+      groups.push(newGroup);
     }
   });
+
+  groups.sort((a, b) => b.id - a.id);
+
   return {
     tabGroups: groups,
-    tabs: defaultGroup,
   };
 }
 
@@ -145,20 +127,13 @@ async function updateTabDescriptions(request, sender) {
 }
 
 async function setTabData() {
-  const tabsData: TabsData = await processTabs();
+  const tabsData: TabsData = await extractTabGroups();
 
   console.log(
     `Number of groups identified ${
       tabsData.tabGroups != null && tabsData.tabGroups.length
     }`
   );
-  console.log(
-    `Number of standalone tabs identified ${
-      tabsData.tabs != null && tabsData.tabs.length
-    }`
-  );
-
-  console.log(tabsData);
 
   setStoredTabsData(tabsData).then(() => {
     console.log("Stored tabs in LocalStorage");
@@ -168,7 +143,6 @@ async function setTabData() {
 chrome.runtime.onInstalled.addListener(() => {
   chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
   chrome.tabs.query({ url: ["http://*/*", "https://*/*"] }, (tabs) => {
-    // Adjust the URL pattern as necessary
     tabs.forEach((tab) => {
       chrome.scripting.executeScript({
         target: { tabId: tab.id },
@@ -190,106 +164,25 @@ chrome.alarms.create(PROCESS_TABS_TIMER, {
   periodInMinutes: 1 / 6,
 });
 
-// chrome.alarms.onAlarm.addListener((alarm) => {
-//   if (alarm.name === CLOCK_TIMER) {
-//     chrome.storage.local.get(["timer"], (res) => {
-//       const time = res.timer ?? 0;
-//       chrome.storage.local.set({ timer: time + 1 });
-//     });
-//   } else if (alarm.name === PROCESS_TABS_TIMER) {
-//     const tabsData = getStoredTabsData().then((tabsData) => {
-//       const unprocessedGroups: TabGroup[] = tabsData.tabGroups.filter(
-//         (group) => !group.processed
-//       );
-
-//       const unprocessedTabs: Tab[] = tabsData.tabs.filter(
-//         (tab) => !tab.processed
-//       );
-
-//       console.log(`Groups to be processed ${unprocessedGroups.length}`);
-
-//       tabsData.tabGroups.forEach((tabGroup, index) => {
-//         if (!tabGroup.processed) {
-//           // Send message to each tab in the TabGroup
-//           tabGroup.tabs.forEach((tab, index) => {
-//             if (!tab.processed) {
-//               sendProcessMessage(tab);
-//             }
-//           });
-//           tabGroup.summary = "New Summary";
-//           tabGroup.processed = true;
-//         }
-//       });
-
-//       console.log(`Tabs to be processed ${unprocessedTabs.length}`);
-
-//       tabsData.tabs.forEach((tab, index) => {
-//         if (!tab.processed) {
-//           sendProcessMessage(tab);
-//           tab.processed = true;
-//         }
-//       });
-
-//       setStoredTabsData(tabsData);
-//     });
-//   }
-// });
-
-// function sendProcessMessage(tab: Tab) {
-//   const message: MessageRequest = {
-//     msg_type:
-//       MessageRequests.REQ_CONTENT_DESCRIPTION |
-//       MessageRequests.REQ_CONTENT_KEYWORDS,
-//   };
-
-//   console.log(`Sending message ${message} to tab ${tab.title}`);
-
-//   chrome.tabs.sendMessage(
-//     tab.id,
-//     { message: message },
-//     function (response: MessageResponse) {
-//       tab.description = response.data.description;
-//       tab.keywords = response.data.keywords;
-//       tab.processed = true;
-//       console.log(`Response from tab ${tab.title} content script`);
-//     }
-//   );
-// }
-
-// Update PROCESS_TABS_TIMER to handle promises
 chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === PROCESS_TABS_TIMER) {
     getStoredTabsData().then((tabsData) => {
-      const processingPromises = [];
-
-      tabsData.tabGroups.forEach((tabGroup) => {
-        if (!tabGroup.processed) {
-          console.log(
-            `Analyzing group ${tabGroup.name} with ${tabGroup.tabs.length}`
-          );
-          tabGroup.tabs.forEach((tab) => {
-            if (!tab.processed) {
-              const promise = new Promise((resolve) => {
-                sendProcessMessage(tab, resolve);
-              });
-              processingPromises.push(promise);
-            }
+      const groupPromises = tabsData.tabGroups.map(async (tabGroup) => {
+        const tabPromises = tabGroup.tabs
+          .filter((tab) => !tab.processed)
+          .map((tab) => {
+            return new Promise((resolve) => {
+              sendProcessMessage(tab, resolve);
+            });
           });
-        }
+
+        await Promise.all(tabPromises);
+        tabGroup.processed = true;
+        return tabGroup;
       });
 
-      console.log(`Analyzing ${tabsData.tabs.length} standalone tabs`);
-      tabsData.tabs.forEach((tab) => {
-        if (!tab.processed) {
-          const promise = new Promise((resolve) => {
-            sendProcessMessage(tab, resolve);
-          });
-          processingPromises.push(promise);
-        }
-      });
-
-      Promise.all(processingPromises).then(() => {
-        setStoredTabsData(tabsData); // Save all changes after all processing is done
+      Promise.all(groupPromises).then((processedGroups) => {
+        setStoredTabsData(tabsData);
       });
     });
   }
@@ -313,7 +206,7 @@ function sendProcessMessage(tab: Tab, resolve) {
         tab.processed ? "completed" : "pending..."
       }`
     );
-    resolve(); // Resolve the promise after processing
+    resolve();
     return true;
   });
 }

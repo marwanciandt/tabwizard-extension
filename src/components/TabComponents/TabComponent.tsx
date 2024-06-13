@@ -48,7 +48,7 @@ const TabComponent: React.FC<{
   windowId?: number;
   groupId?: number;
   id?: number;
-  index?: number;
+  tabIndex?: number;
   onDelete?: () => void;
 }> = ({
   title,
@@ -59,38 +59,36 @@ const TabComponent: React.FC<{
   processed,
   windowId,
   id,
-  index,
+  tabIndex,
   onDelete,
 }) => {
   const [description, setDescription] = React.useState<string>(
     "Description not set yet!"
   );
 
-  console.log(`Index value is ${index}`);
-
-  useEffect(() => {
-    console.debug("Updating description from llm");
-    getStoredTabsData().then((storedTabs) => {
-      storedTabs.tabs.forEach((tab, index) => {
-        if (tab.id === id) {
-          setDescription(tab.description);
-        }
-      });
-      storedTabs.tabGroups.forEach((tabGroup, index) => {
-        tabGroup.tabs.forEach((tab, index) => {
-          if (tab.id === id) {
-            setDescription(tab.description);
-          }
-        });
-      });
-    });
-  }, []);
+  // useEffect(() => {
+  //   console.debug("Updating description from llm");
+  //   getStoredTabsData().then((storedTabs) => {
+  //     storedTabs.tabs.forEach((tab, index) => {
+  //       if (tab.id === id) {
+  //         setDescription(tab.description);
+  //       }
+  //     });
+  //     storedTabs.tabGroups.forEach((tabGroup, index) => {
+  //       tabGroup.tabs.forEach((tab, index) => {
+  //         if (tab.id === id) {
+  //           setDescription(tab.description);
+  //         }
+  //       });
+  //     });
+  //   });
+  // }, []);
 
   return (
     <ListItem>
       <TabContainer onDelete={onDelete}>
         <CardContent>
-          <Typography variant="subtitle1">Index: {index}</Typography>
+          <Typography variant="subtitle1">Index: {tabIndex}</Typography>
           <Typography variant="h5">Title: {title}</Typography>
           <Typography variant="subtitle1">
             Processed: {processed && "true"}

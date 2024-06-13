@@ -52,14 +52,14 @@ const TabGroupComponent: React.FC<{
             <Box my="1%">
               <List>
                 {tabs.map((tab, index: number) => {
-                  console.log(`Index is inside map ${index}`);
                   return (
                     <TabComponent
-                      index={index}
                       id={tab.id}
                       title={tab.title}
                       keywords={tab.keywords}
+                      groupId={tab.groupId}
                       type={tab.type}
+                      key={index}
                       url={tab.url}
                       windowId={tab.windowId}
                       processed={tab.processed}
