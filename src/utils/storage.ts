@@ -1,5 +1,5 @@
 import { OpenWeatherTempScale } from "../apis/weather_api";
-import { TabsData } from "../sidepanel/sidepanel";
+import { TabData } from "../sidepanel/sidepanel";
 import { TabGroupType, TabType } from "../types/TabGroupType";
 
 export interface LocalStorageOptions {
@@ -33,13 +33,13 @@ export interface TabGroup {
   processed: boolean;
 }
 
-export interface LocalStorageTabsData {
+export interface LocalStorageTabData {
   tabGroups?: TabGroup[];
   tabs?: Tab[];
 }
 
 export interface LocalStorage {
-  tabsData?: LocalStorageTabsData;
+  tabsData?: LocalStorageTabData;
   options?: LocalStorageOptions;
 }
 
@@ -67,7 +67,7 @@ export function getStoredOptions(): Promise<LocalStorageOptions> {
 }
 
 export function setStoredTabsData(
-  tabsData: LocalStorageTabsData
+  tabsData: LocalStorageTabData
 ): Promise<void> {
   const vals: LocalStorage = {
     tabsData,
@@ -79,7 +79,7 @@ export function setStoredTabsData(
   });
 }
 
-export function getStoredTabsData(): Promise<LocalStorageTabsData> {
+export function getStoredTabData(): Promise<LocalStorageTabData> {
   const keys: LocalStorageKeys[] = ["tabsData"];
 
   return new Promise((resolve) => {

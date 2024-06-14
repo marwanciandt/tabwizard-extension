@@ -1,17 +1,13 @@
 import { LLMResponse, queryLLM } from "../apis/llm_api";
-import { TabsData } from "../sidepanel/sidepanel";
+import { TabData } from "../sidepanel/sidepanel";
 import { MessageRequests } from "../types/messages";
-import {
-  getStoredTabsData,
-  setStoredTabsData,
-  Tab,
-  TabGroup,
-} from "../utils/storage";
+import { getStoredTabData, setStoredTabsData, Tab } from "../utils/storage";
+import { extractTabGroups } from "./extractTabGroups";
 
 const CLOCK_TIMER: string = "clock_timer";
 const PROCESS_TABS_TIMER: string = "process_tab_timer";
 
-async function getAllTabs(): Promise<Tab[]> {
+export async function getAllTabs(): Promise<Tab[]> {
   const current = await chrome.windows.getLastFocused();
   const windowTabs = await chrome.tabs.query({ windowId: current.id });
   const collator = new Intl.Collator();
@@ -37,7 +33,7 @@ async function getAllTabs(): Promise<Tab[]> {
   return tabs;
 }
 
-async function fetchGroupTitles(tabs: Tab[]) {
+export async function fetchGroupTitles(tabs: Tab[]) {
   const groupIds = [
     ...new Set(
       tabs.filter((tab) => tab.groupId !== -1).map((tab) => tab.groupId)
@@ -53,46 +49,6 @@ async function fetchGroupTitles(tabs: Tab[]) {
   return Promise.all(promises);
 }
 
-async function extractTabGroups(): Promise<TabsData> {
-  const groups: TabGroup[] = [];
-  const tabs = await getAllTabs();
-  const groupData = await fetchGroupTitles(tabs);
-  groupData.push({ id: -1, title: "Standadlone" });
-
-  tabs.forEach((tab, index) => {
-    const group = groups.find((group) => group.id === tab.groupId);
-    if (group !== undefined) {
-      console.log(`Pushing tab ${tab.id} to existing group ${group.id}`);
-      group.tabs.push(tab);
-    } else {
-      const title = groupData.find((g) => g.id === tab.groupId).title;
-      const newGroup: TabGroup = {
-        id: tab.groupId,
-        windowId: tab.windowId,
-        name: title,
-        summary: "Default summary.",
-        type: "user",
-        tabs: [tab],
-        processed: false,
-      };
-
-      console.log(`Pushing new group to array ${newGroup.id}`);
-      groups.push(newGroup);
-    }
-  });
-
-  groups.sort((a, b) => b.id - a.id);
-
-  return {
-    tabGroups: groups,
-  };
-}
-
-async function getTopic(prompt: string): Promise<LLMResponse> {
-  const res = await queryLLM(prompt);
-  return res;
-}
-
 async function updateTabDescriptions(request, sender) {
   try {
     // Await directly instead of using then for the initial API call
@@ -100,7 +56,7 @@ async function updateTabDescriptions(request, sender) {
     console.log(res.prompt.content);
 
     // Await the stored tabs data retrieval
-    const storedTabs = await getStoredTabsData();
+    const storedTabs = await getStoredTabData();
 
     // Update the description in tabs array
     storedTabs.tabs.forEach((tab) => {
@@ -126,16 +82,16 @@ async function updateTabDescriptions(request, sender) {
   }
 }
 
-async function setTabData() {
-  const tabsData: TabsData = await extractTabGroups();
+async function extractAndStoreTabData() {
+  const tabData: TabData = await extractTabGroups();
 
   console.log(
     `Number of groups identified ${
-      tabsData.tabGroups != null && tabsData.tabGroups.length
+      tabData.tabGroups != null && tabData.tabGroups.length
     }`
   );
 
-  setStoredTabsData(tabsData).then(() => {
+  setStoredTabsData(tabData).then(() => {
     console.log("Stored tabs in LocalStorage");
   });
 }
@@ -152,7 +108,7 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 
   (async () => {
-    await setTabData();
+    await extractAndStoreTabData();
   })();
 });
 
@@ -166,7 +122,7 @@ chrome.alarms.create(PROCESS_TABS_TIMER, {
 
 chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === PROCESS_TABS_TIMER) {
-    getStoredTabsData().then((tabsData) => {
+    getStoredTabData().then((tabsData) => {
       const groupPromises = tabsData.tabGroups.map(async (tabGroup) => {
         const tabPromises = tabGroup.tabs
           .filter((tab) => !tab.processed)
@@ -188,6 +144,11 @@ chrome.alarms.onAlarm.addListener((alarm) => {
   }
 });
 
+async function getTopic(prompt: string[]): Promise<LLMResponse> {
+  const res = await queryLLM(prompt.join(" "));
+  return res;
+}
+
 function sendProcessMessage(tab: Tab, resolve) {
   const message = {
     msg_type:
@@ -195,10 +156,11 @@ function sendProcessMessage(tab: Tab, resolve) {
       MessageRequests.REQ_CONTENT_KEYWORDS,
   };
 
-  chrome.tabs.sendMessage(tab.id, { message: message }, (response) => {
+  chrome.tabs.sendMessage(tab.id, { message: message }, async (response) => {
     if (response) {
-      tab.description = response.data.description;
       tab.keywords = response.data.keywords;
+      const res: LLMResponse = await getTopic(tab.keywords);
+      tab.description = res.response;
       tab.processed = true;
     }
     console.log(

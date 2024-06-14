@@ -2,14 +2,21 @@ export function extractTextContent() {
   let text = "";
   const elements = document.querySelectorAll("article, p, h1, h2, h3"); // Customize selectors as needed
   elements.forEach((element) => {
-    text += element.textContent + " ";
+    text += element.textContent + ",";
   });
   return text.trim();
 }
 
-export function preprocessText(text) {
+export function preprocessText(text: string): string[] {
   const stopwords = [
     "and",
+    "you",
+    "your",
+    "he",
+    "she",
+    "us",
+    "can",
+    "into",
     "the",
     "to",
     "of",
@@ -33,16 +40,16 @@ export function preprocessText(text) {
     "which",
     "but",
     "its",
-    "be"
+    "be",
   ]; // Add more stopwords
-  let words = text
+  let words: string[] = text
     .toLowerCase()
-    .split(/\s+/)
-    .filter((word) => word.length > 1 && !stopwords.includes(word));
+    .split(/\s+?/)
+    .filter((word: string) => word.length > 1 && !stopwords.includes(word));
   return words;
 }
 
-export function extractKeywords(words) {
+export function extractKeywords(words: string[]): string[] {
   const wordFrequencies = {};
   words.forEach((word) => {
     if (!wordFrequencies[word]) wordFrequencies[word] = 0;

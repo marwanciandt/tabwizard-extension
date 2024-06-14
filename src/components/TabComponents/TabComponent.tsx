@@ -11,7 +11,6 @@ import {
   Typography,
 } from "@material-ui/core";
 import { TabType } from "../../types/TabGroupType";
-import { getStoredTabsData } from "../../utils/storage";
 
 type TabGroupState = "loading" | "error" | "ready";
 
@@ -45,6 +44,7 @@ const TabComponent: React.FC<{
   type?: TabType;
   url?: string;
   processed: boolean;
+  description: string;
   windowId?: number;
   groupId?: number;
   id?: number;
@@ -57,15 +57,12 @@ const TabComponent: React.FC<{
   url,
   groupId,
   processed,
+  description,
   windowId,
   id,
   tabIndex,
   onDelete,
 }) => {
-  const [description, setDescription] = React.useState<string>(
-    "Description not set yet!"
-  );
-
   // useEffect(() => {
   //   console.debug("Updating description from llm");
   //   getStoredTabsData().then((storedTabs) => {
@@ -95,7 +92,9 @@ const TabComponent: React.FC<{
           </Typography>
           <Typography variant="subtitle1">Groupid: {groupId}</Typography>
           <Typography variant="subtitle1">TabId: {id}</Typography>
-          <Typography variant="subtitle1">Keywords: {keywords}</Typography>
+          <Typography variant="subtitle1">
+            Keywords: {keywords.join(",")}
+          </Typography>
           <Typography variant="subtitle2">
             Description: {description}
           </Typography>

@@ -8,18 +8,18 @@ import {
   LocalStorageOptions,
   TabGroup,
   Tab,
-  getStoredTabsData,
-  LocalStorageTabsData,
+  getStoredTabData,
+  LocalStorageTabData,
 } from "../utils/storage";
 import { TabGroupComponent } from "../components/TabComponents";
 
-export interface TabsData {
+export interface TabData {
   tabGroups: TabGroup[];
 }
 
 const App: React.FC<{}> = () => {
   const [options, setOptions] = useState<LocalStorageOptions | null>(null);
-  const [tabsData, setTabsData] = useState<LocalStorageTabsData>(null);
+  const [tabData, setTabData] = useState<LocalStorageTabData>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
@@ -35,16 +35,16 @@ const App: React.FC<{}> = () => {
   }, []);
 
   useEffect(() => {
-    getStoredTabsData()
-      .then((tabsData) => {
-        setTabsData(tabsData);
+    getStoredTabData()
+      .then((tabData) => {
+        setTabData(tabData);
       })
       .catch((error) => {
         console.error("Failed to load options:", error);
       });
-  }, [tabsData]);
+  }, [tabData]);
 
-  if (!tabsData) {
+  if (!tabData) {
     return null;
   }
 
@@ -53,7 +53,7 @@ const App: React.FC<{}> = () => {
   };
 
   // Filtering tab groups and tabs within each group
-  const filteredTabGroups = tabsData.tabGroups
+  const filteredTabGroups = tabData.tabGroups
     .map((tabGroup) => ({
       ...tabGroup,
       tabs: tabGroup.tabs.filter((tab) =>
@@ -86,7 +86,7 @@ const App: React.FC<{}> = () => {
               console.log(`Index groups in sidePanel : ${index}`);
             }}
           />
-          {index < tabsData.tabGroups.length - 1 && <Divider />}
+          {index < tabData.tabGroups.length - 1 && <Divider />}
         </React.Fragment>
       ))}
       <Box height="16px" />

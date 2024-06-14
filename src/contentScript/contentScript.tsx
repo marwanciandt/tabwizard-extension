@@ -28,15 +28,24 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   const message: MessageRequest = request.message;
 
   console.log(`Received message ${message.msg_type} from ${sender.id}`);
+
   if (hasRequest(message.msg_type, MessageRequests.REQ_CONTENT_KEYWORDS)) {
-    // Get keywords
-    data.keywords = ["keyword1", "keyword2"];
-  } else if (
-    hasRequest(message.msg_type, MessageRequests.REQ_CONTENT_DESCRIPTION)
-  ) {
-    // Get description
-    data.description = "LLM provided description";
+    const pageText = extractKeywords(preprocessText(extractTextContent()));
+    const pageMetaElement: Element = document.querySelector(
+      'head meta[name="description"]'
+    );
+    const metaDescription: string[] = extractKeywords(
+      preprocessText(pageMetaElement["content"])
+    );
+    const keywords: string[] = pageText.concat(metaDescription);
+    data.keywords = keywords.filter(
+      (item, index) => keywords.indexOf(item) === index
+    );
   }
+
+  // if (hasRequest(message.msg_type, MessageRequests.REQ_CONTENT_DESCRIPTION)) {
+  //   data.description = "LLM provided description";
+  // }
 
   const response: MessageResponse = {
     msg_type:
@@ -44,7 +53,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       MessageResponses.RESP_CONTENT_KEYWORDS,
     data: {
       keywords: data.keywords,
-      description: data.description,
       tab_id: 1,
       tab_url: "https://url.com",
     },
