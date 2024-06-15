@@ -1,4 +1,4 @@
-# React Chrome Extension Boilerplate
+# React Tab Wizard Chrome Extension
 
 ## Getting Started
 
@@ -26,7 +26,7 @@
 2. ZIP the entire `dist` folder (e.g. `dist.zip`)
 3. Publish the ZIP file on the Chrome Web Store Developer Dashboard!
 
-## Important Default Boilerplate Notes
+## Important Notes
 
 - Folders get flattened, static references to images from HTML do not need to be relative (i.e. `icon.png` instead of `../static/icon.png`)
 - Importing local ts/tsx/css files should be relative, since Webpack will build a dependancy graph using these paths
