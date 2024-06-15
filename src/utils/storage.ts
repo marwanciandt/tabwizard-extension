@@ -23,6 +23,20 @@ export interface Tab {
   processed: boolean;
 }
 
+export function convertToEntity(tab: chrome.tabs.Tab): Tab {
+  return {
+    id: tab.id,
+    groupId: tab.groupId,
+    title: tab.title,
+    keywords: [],
+    description: "",
+    type: "user",
+    url: tab.url,
+    windowId: tab.windowId,
+    processed: false,
+  };
+}
+
 export interface TabGroup {
   id: number;
   windowId: number;
@@ -35,7 +49,7 @@ export interface TabGroup {
 
 export interface LocalStorageTabData {
   tabGroups?: TabGroup[];
-  tabs?: Tab[];
+  // tabs?: Tab[];
 }
 
 export interface LocalStorage {

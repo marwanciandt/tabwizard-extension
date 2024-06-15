@@ -14,6 +14,7 @@ import {
   OpenWeatherTempScale,
 } from "../../apis/weather_api";
 import { queryLLM } from "../../apis/llm_api";
+import { LLM_TEMPLATE } from "../../prompts/templates";
 
 type WeatherCardState = "loading" | "error" | "ready";
 
@@ -57,7 +58,10 @@ const WeatherCard: React.FC<{
   }, [city, tempScale]);
 
   useEffect(() => {
-    queryLLM("weather holiday greece flight ticket sunscreen boat trip")
+    queryLLM(
+      LLM_TEMPLATE.TAB_DESCRIPTION,
+      "weather holiday greece flight ticket sunscreen boat trip"
+    )
       .then((data) => {
         console.log(data);
       })

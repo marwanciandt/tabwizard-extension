@@ -18,9 +18,10 @@ const TabGroupComponent: React.FC<{
   name: string;
   summary: string;
   type: TabGroupType;
+  processed: boolean;
   tabs?: Tab[];
   onDelete?: () => void;
-}> = ({ name, summary, type, tabs, onDelete }) => {
+}> = ({ name, summary, type, processed, tabs, onDelete }) => {
   return (
     <Box
       sx={{
@@ -42,6 +43,11 @@ const TabGroupComponent: React.FC<{
         </AccordionSummary>
         <AccordionDetails>
           <Typography variant="body1">Summary: {summary}</Typography>
+        </AccordionDetails>
+        <AccordionDetails>
+          <Typography variant="body1">
+            Processed: {processed && "true"}
+          </Typography>
         </AccordionDetails>
         <AccordionDetails>
           <Typography variant="body1">Type: {type}</Typography>

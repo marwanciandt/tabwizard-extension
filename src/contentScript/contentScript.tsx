@@ -62,45 +62,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   return true;
 });
 
-// const App: React.FC<{}> = () => {
-//   const [options, setOptions] = useState<LocalStorageOptions | null>(null);
-//   const [isActive, setIsActive] = useState<boolean>(false);
-
-//   useEffect(() => {
-//     getStoredOptions().then((options) => {
-//       setOptions(options);
-//       setIsActive(options.hasAutoOverlay);
-//     });
-//   }, []);
-
-// useEffect(() => {
-//   chrome.runtime.onMessage.addListener(handleMessages);
-//   return () => {
-//     // clean up event listener, bug fix from: https://www.udemy.com/course/chrome-extension/learn/#questions/14694484/
-//     chrome.runtime.onMessage.removeListener(handleMessages);
-//   };
-// }, [isActive]);
-
-// (async () => {
-//   const pageText = extractKeywords(preprocessText(extractTextContent()));
-
-//   const pageMetaElement: Element = document.querySelector(
-//     'head meta[name="description"]'
-//   );
-
-//   const metaDescription = extractKeywords(
-//     preprocessText(pageMetaElement["content"])
-//   );
-
-//   const keywords = pageText.join(", ") + " " + metaDescription.join(", ");
-
-//   console.log(`Sending PROCESS_TAB_META message with keywords; ${keywords}`);
-// })
-
-// const root = document.createElement("div");
-// document.body.appendChild(root);
-// ReactDOM.render(<App />, root);
-
 // chrome.runtime.onConnect.addListener(function (port) {
 //   console.assert(port.name === TAB_MSG_CHANNEL);
 //   port.onMessage.addListener(function (msg) {

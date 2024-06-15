@@ -78,6 +78,7 @@ const App: React.FC<{}> = () => {
         <React.Fragment key={index}>
           <TabGroupComponent
             name={tabGroup.name}
+            processed={tabGroup.processed}
             summary={tabGroup.summary}
             type={tabGroup.type}
             tabs={tabGroup.tabs}
